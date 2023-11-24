@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 5 Assembler</title>
+    <script type="module" src="assembler.ts"></script>
+    <link rel="stylesheet" type="text/css" href="./layout.css" />
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+</head>
+
+<body>
+    <div class="toolbar">
+        <button id="export-hex-btn">Export <code>.hex</code> file</button>
+    </div>
+    <div class="split-editor">
+        <div id="editor">:main
+# Wait 10 cycles:
+LD R0 000 1010
+SUB R0 000 0001
+BZ R0 :Finished
+B :main
+
+:Finished</div>
+        <div id="preview-output">
+            <h1>Generated <code>.hex</code> file</h1>
+            <div id="preview-output-text"></div>
+            <div class="log-area">
+                <h2>Log</h2>
+                <textarea id="log"></textarea>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.31.2/ace.js"
+        integrity="sha512-mkot3HRJhKBg0jgaOGO10Ve1Y1V1YRiFx4l2itBAZUjXYfDKgxbPUhSjp3UFq8oQmHDL1yAXG3nMFRMhPgFlrA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="module">
+        import { assemble } from './assembler.js'
+
+        const editor = ace.edit("editor");
+        const preview = ace.edit('preview-output-text');
+        preview.setReadOnly(true);
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            editor.setTheme("ace/theme/monokai");
+            preview.setTheme("ace/theme/monokai");
+            document.documentElement.classList.add('dark-theme')
+        }
+        const logging = document.getElementById('log');
+        const update = () => {
+            const warnings = [];
+            try {
+                const result = assemble(editor.getValue(), {
+                    emitWarning(msg, lineIx) {
+                        warnings.push({ msg, lineIx });
+                    }
+                });
+                preview.setValue(result);
+            } catch (error) {
+                preview.setValue(String(error));
+            }
+            logging.textContent = warnings.map(({ msg, lineIx }) => `WARN: line ${lineIx}: ${msg}\n`).join('');
+        };
+        editor.session.on('change', update);
+        update();
+
+        /** https://stackoverflow.com/questions/45831191/generate-and-download-file-from-js */
+        function download(filename, text) {
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            try {
+                element.click();
+            } finally {
+                document.body.removeChild(element);
+            }
+        }
+        document.getElementById('export-hex-btn').onclick = function () {
+            try {
+                download('assembly.hex', assemble(editor.getValue()));
+            } catch (error) {
+                logging.textContent += "Failed to download .hex file because:\n" + error + '\n';
+                logging.scrollTop = logging.scrollHeight;
+            }
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,55 @@
+
+html {
+    height: 100%;
+    width: 100%;
+}
+
+html,
+body,
+.split-editor,
+#editor-area,
+#preview-output,
+.log-area {
+    display: flex;
+    align-items: stretch;
+}
+
+body {
+    flex-direction: column;
+    margin: 0;
+}
+
+body,
+#editor,
+.split-editor,
+#preview-output-text,
+#log {
+    flex: 1 1 auto;
+}
+
+.toolbar {
+    margin: 8px 5px;
+}
+
+#preview-output {
+    flex: 0.5 1 auto;
+    flex-direction: column;
+    padding: 10px;
+}
+#preview-output  h1 {
+    text-align: center;
+    margin: 0;
+    margin-bottom: 10px;
+}
+.log-area {
+    flex: 0.1 1 auto;
+    flex-direction: column;
+}
+.log-area h2 {
+    text-align: center;
+    margin: 0;
+    margin: 10px;
+}
+#log {
+    resize: none;
+}

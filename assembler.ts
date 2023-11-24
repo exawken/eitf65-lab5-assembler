@@ -25,12 +25,6 @@ export class ErrorWithCause extends Error {
         super(message, options);
     }
 }
-export class InvalidRegNumberError extends ErrorWithCause {
-    constructor(regStr: string, numParseError: Error) {
-        super(`Failed to parse register number: "${regStr}"`, { cause: numParseError });
-        this.name = this.constructor.name;
-    }
-}
 export class InvalidInstructionError extends ErrorWithCause {
     constructor(lines: string[], ix: number, parseError: Error) {
         super(`Failed to emit instruction for line ${ix + 1} in assembly file with content:\n\t${lines[ix]}`, { cause: parseError });
@@ -111,11 +105,9 @@ export function assemble(content: string, options?: AssembleOptions): string {
                 if (!regStr.toUpperCase().startsWith('R'))
                     throw new Error(`Expected register name that starts with an R but found: ${regStr ? regStr : '<empty string>'}`);
                 regStr = regStr.slice(1);
-                let num: number;
-                try {
-                    num = parseInt(regStr);
-                } catch (error) {
-                    throw new InvalidRegNumberError(regStr, error);
+                const num = parseInt(regStr);
+                if (isNaN(num)) {
+                    throw new Error(`Failed to parse register number: "${regStr}"`);
                 }
                 if (num < 0 || 1 < num)
                     throw new Error(`There are only 2 registers, specify R0 or R1`);

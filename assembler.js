@@ -23,12 +23,6 @@ export class ErrorWithCause extends Error {
         super(message, options);
     }
 }
-export class InvalidRegNumberError extends ErrorWithCause {
-    constructor(regStr, numParseError) {
-        super(`Failed to parse register number: "${regStr}"`, { cause: numParseError });
-        this.name = this.constructor.name;
-    }
-}
 export class InvalidInstructionError extends ErrorWithCause {
     constructor(lines, ix, parseError) {
         super(`Failed to emit instruction for line ${ix + 1} in assembly file with content:\n\t${lines[ix]}`, { cause: parseError });
@@ -104,12 +98,9 @@ export function assemble(content, options) {
                 if (!regStr.toUpperCase().startsWith('R'))
                     throw new Error(`Expected register name that starts with an R but found: ${regStr ? regStr : '<empty string>'}`);
                 regStr = regStr.slice(1);
-                let num;
-                try {
-                    num = parseInt(regStr);
-                }
-                catch (error) {
-                    throw new InvalidRegNumberError(regStr, error);
+                const num = parseInt(regStr);
+                if (isNaN(num)) {
+                    throw new Error(`Failed to parse register number: "${regStr}"`);
                 }
                 if (num < 0 || 1 < num)
                     throw new Error(`There are only 2 registers, specify R0 or R1`);
@@ -145,43 +136,44 @@ export function assemble(content, options) {
                 }
                 return address;
             };
+            const code = options.opcodes?.[op.toUpperCase()];
             switch (op.toUpperCase()) {
                 case 'CALL':
-                    emit(0, false, parseLabel(), comment);
+                    emit(code ?? 0, false, parseLabel(), comment);
                     break;
                 case 'RET':
-                    emit(1, false, 0, comment);
+                    emit(code ?? 1, false, 0, comment);
                     unreachable = true;
                     break;
                 case 'BZ':
-                    emit(2, parseReg(), parseLabel(), comment);
+                    emit(code ?? 2, parseReg(), parseLabel(), comment);
                     break;
                 case 'B':
-                    emit(3, false, parseLabel(), comment);
+                    emit(code ?? 3, false, parseLabel(), comment);
                     unreachable = true;
                     break;
                 case 'ADD':
-                    emit(4, parseReg(), parseData(true), comment);
+                    emit(code ?? 4, parseReg(), parseData(true), comment);
                     break;
                 case 'SUB':
-                    emit(5, parseReg(), parseData(true), comment);
+                    emit(code ?? 5, parseReg(), parseData(true), comment);
                     break;
                 case 'LD':
-                    emit(6, parseReg(), parseData(true), comment);
+                    emit(code ?? 6, parseReg(), parseData(true), comment);
                     break;
                 case 'IN':
-                    emit(7, parseReg(), 0, comment);
+                    emit(code ?? 7, parseReg(), 0, comment);
                     break;
                 case 'OUT':
-                    emit(8, parseReg(), 0, comment);
+                    emit(code ?? 8, parseReg(), 0, comment);
                     break;
                 case 'AND':
-                    emit(9, parseReg(), parseData(true), comment);
+                    emit(code ?? 9, parseReg(), parseData(true), comment);
                     break;
                 case 'WRITE':
                     // Emulate write instruction using R0 register
-                    emit(6, false, parseData(true), comment);
-                    emit(8, false, 0, comment);
+                    emit(options.opcodes?.['LD'] ?? 6, false, parseData(true), comment);
+                    emit(options.opcodes?.['OUT'] ?? 8, false, 0, comment);
                     break;
                 default:
                     throw new Error(`Unknown operation "${op}"`);

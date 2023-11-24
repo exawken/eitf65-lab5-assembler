@@ -142,7 +142,7 @@ export function assemble(content: string, options?: AssembleOptions): string {
                 }
                 return address;
             };
-            const code = options.opcodes?.[op.toUpperCase()];
+            const code = options?.opcodes?.[op.toUpperCase()];
             switch (op.toUpperCase()) {
                 case 'CALL':
                     emit(code ?? 0, false, parseLabel(), comment);
@@ -178,8 +178,8 @@ export function assemble(content: string, options?: AssembleOptions): string {
                     break;
                 case 'WRITE':
                     // Emulate write instruction using R0 register
-                    emit(options.opcodes?.['LD'] ?? 6, false, parseData(true), comment);
-                    emit(options.opcodes?.['OUT'] ?? 8, false, 0, comment);
+                    emit(options?.opcodes?.['LD'] ?? 6, false, parseData(true), comment);
+                    emit(options?.opcodes?.['OUT'] ?? 8, false, 0, comment);
                     break;
                 default:
                     throw new Error(`Unknown operation "${op}"`);

@@ -54,6 +54,7 @@ function splitOnce(text: string, separator: string, trimAfter: boolean): [string
 
 type AssembleOptions = {
     emitWarning?: (msg: string, lineIndex: number) => void,
+    opcodes?: Record<string, number>,
     _labels?: Map<string, number>,
 };
 
@@ -149,43 +150,44 @@ export function assemble(content: string, options?: AssembleOptions): string {
                 }
                 return address;
             };
+            const code = options.opcodes?.[op.toUpperCase()];
             switch (op.toUpperCase()) {
                 case 'CALL':
-                    emit(0, false, parseLabel(), comment);
+                    emit(code ?? 0, false, parseLabel(), comment);
                     break;
                 case 'RET':
-                    emit(1, false, 0, comment);
+                    emit(code ?? 1, false, 0, comment);
                     unreachable = true;
                     break;
                 case 'BZ':
-                    emit(2, parseReg(), parseLabel(), comment);
+                    emit(code ?? 2, parseReg(), parseLabel(), comment);
                     break;
                 case 'B':
-                    emit(3, false, parseLabel(), comment);
+                    emit(code ?? 3, false, parseLabel(), comment);
                     unreachable = true;
                     break;
                 case 'ADD':
-                    emit(4, parseReg(), parseData(true), comment);
+                    emit(code ?? 4, parseReg(), parseData(true), comment);
                     break;
                 case 'SUB':
-                    emit(5, parseReg(), parseData(true), comment);
+                    emit(code ?? 5, parseReg(), parseData(true), comment);
                     break;
                 case 'LD':
-                    emit(6, parseReg(), parseData(true), comment);
+                    emit(code ?? 6, parseReg(), parseData(true), comment);
                     break;
                 case 'IN':
-                    emit(7, parseReg(), 0, comment);
+                    emit(code ?? 7, parseReg(), 0, comment);
                     break;
                 case 'OUT':
-                    emit(8, parseReg(), 0, comment);
+                    emit(code ?? 8, parseReg(), 0, comment);
                     break;
                 case 'AND':
-                    emit(9, parseReg(), parseData(true), comment);
+                    emit(code ?? 9, parseReg(), parseData(true), comment);
                     break;
                 case 'WRITE':
                     // Emulate write instruction using R0 register
-                    emit(6, false, parseData(true), comment);
-                    emit(8, false, 0, comment);
+                    emit(options.opcodes?.['LD'] ?? 6, false, parseData(true), comment);
+                    emit(options.opcodes?.['OUT'] ?? 8, false, 0, comment);
                     break;
                 default:
                     throw new Error(`Unknown operation "${op}"`);

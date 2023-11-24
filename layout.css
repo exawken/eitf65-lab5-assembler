@@ -27,6 +27,13 @@ body,
     flex: 1 1 auto;
 }
 
+.split-editor {
+    flex-wrap: wrap;
+}
+.split-editor > * {
+    width: 300px;
+}
+
 .toolbar {
     margin: 8px 5px;
 }

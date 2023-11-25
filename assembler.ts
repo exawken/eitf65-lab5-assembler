@@ -448,7 +448,12 @@ export class Program {
                         }
                         const comment = (line.comment ?? '') + (line.comment ? ' ' : '') + `(Assembly: ${labelComment}${line.uncommentedLine})`;
                         for (const out of op.output) {
-                            instructions.push(new Instruction(out.opcode, line.item.reg === 'R1', line.item.data ?? 0, comment));
+                            instructions.push(new Instruction(
+                                out.opcode,
+                                out.useRegister ? (line.item.reg === 'R1') : false,
+                                out.useData ? (line.item.data ?? 0) : 0,
+                                comment
+                            ));
                         }
                         if (op.alwaysBranches) unreachable = true;
                     } break;

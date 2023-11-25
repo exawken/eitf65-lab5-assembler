@@ -199,7 +199,7 @@ export function assemble(content: string, options?: AssembleOptions): string {
     }
 }
 
-if (isDeno && import.meta.main) {
+if (isDeno && (import.meta as any).main) {
     if (!Deno.args[1]) {
         throw new Error(`Expected at least one argument`)
     }

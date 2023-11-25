@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="flex-container">
 
 <head>
     <meta charset="UTF-8">
@@ -10,12 +10,41 @@
     <link rel="stylesheet" type="text/css" href="./style.css" />
 </head>
 
-<body>
+<body class="flex-container flex-column">
     <div class="toolbar">
         <button id="export-hex-btn">Export <code>.hex</code> file</button>
+        <a style="float: right;" href="https://github.com/exawken/eitf65-lab5-assembler">GitHub Page</a>
     </div>
-    <div class="split-editor">
-        <div id="editor">:main
+    <div class="split-editor flex-container">
+        <div id="editor">// Each line in this input file can be:
+//
+// - A label like :main
+// - Empty
+// - An instruction like ADD R0 000 0001
+// - An attribute like @define or @no_default_ops
+//
+// each of the above can end with a # character followed by a comment. If
+// instead // is used for the comment then it will be emitted with the
+// instruction on the same line.
+//
+// Branch instruction use decimal numbers when specifying their target address
+// but its better to use the label syntax like BZ R0 :main.
+//
+// Other instructions use binary number when specifying their data like:
+// ADD R0 000 1000.
+//
+// The assembler also supports customizing the defined operations using syntax
+// like:
+// @define OP_NAME reg=always|never|optional data=none|binary|address [unconditional-jump] => OPCODE_1 [no-reg] [no-data], OPCODE_2, OPCODE_3
+// For example:
+// @define CALL reg=never data=address => 0
+// OR:
+// @define WRITE reg=optional data=binary => 6, 8 no-data
+//
+// The @no_default_ops attribute might also be useful in such cases to ensure no
+// default operations remain loaded.
+
+:main
 # Wait 10 cycles:
 LD R0 000 1010
 SUB R0 000 0001
@@ -23,10 +52,10 @@ BZ R0 :Finished
 B :main
 
 :Finished</div>
-        <div id="preview-output">
+        <div id="preview-output" class="flex-container flex-column">
             <h1>Generated <code>.hex</code> file</h1>
             <div id="preview-output-text"></div>
-            <div class="log-area">
+            <div class="log-area flex-container flex-column">
                 <h2>Log</h2>
                 <textarea id="log"></textarea>
             </div>
@@ -59,7 +88,7 @@ B :main
             } catch (error) {
                 preview.setValue(String(error));
             }
-            logging.textContent = warnings.map(({ msg, lineIx }) => `WARN: line ${lineIx}: ${msg}\n`).join('');
+            logging.textContent = warnings.map(({ msg, lineIx }) => `WARN: line ${lineIx + 1}: ${msg}\n`).join('');
         };
         editor.session.on('change', update);
         update();

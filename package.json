@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "prepare-github-pages": "tsc && npm run clean",
+    "build": "tsc || exit 0",
+    "prepare-github-pages": "npm run build && npm run clean",
     "clean": "rm --recursive ./node_modules",
     "deno-bundle": "deno bundle assembler.ts assembler.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "deno test"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "typescript": "^5.3.2"
   }

@@ -3,21 +3,18 @@ html {
     height: 100%;
     width: 100%;
 }
+body {
+    margin: 0;
+}
 
-html,
-body,
-.split-editor,
-#editor-area,
-#preview-output,
-.log-area {
+.flex-container {
     display: flex;
     align-items: stretch;
 }
-
-body {
+.flex-column {
     flex-direction: column;
-    margin: 0;
 }
+
 
 body,
 #editor,
@@ -32,6 +29,11 @@ body,
 }
 .split-editor > * {
     width: 300px;
+    --min-height-px: 300px;
+    min-height: max(min(90vh, 90%), var(--min-height-px));
+}
+#editor {
+    --min-height-px: 150px;
 }
 
 .toolbar {
@@ -40,7 +42,6 @@ body,
 
 #preview-output {
     flex: 5 10 auto;
-    flex-direction: column;
     padding: 10px;
 }
 #preview-output  h1 {
@@ -50,7 +51,6 @@ body,
 }
 .log-area {
     flex: 1 10 auto;
-    flex-direction: column;
 }
 .log-area h2 {
     text-align: center;

@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
+    "prepare-github-pages": "tsc && npm run clean",
+    "clean": "rm --recursive ./node_modules",
     "deno-bundle": "deno bundle assembler.ts assembler.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

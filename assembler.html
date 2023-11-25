@@ -13,6 +13,7 @@
 <body class="flex-container flex-column">
     <div class="toolbar">
         <button id="export-hex-btn">Export <code>.hex</code> file</button>
+        <button id="save-in-url" style="margin-left: 10px;">Save code in URL</button>
         <a style="float: right;" href="https://github.com/exawken/eitf65-lab5-assembler">GitHub Page</a>
     </div>
     <div class="split-editor flex-container">
@@ -76,6 +77,36 @@ B :main
             document.documentElement.classList.add('dark-theme')
         }
         const logging = document.getElementById('log');
+
+        // Save data in URL:
+        function loadDataFromUrl() {
+            try {
+                const url = new URL(window.location.href);
+                if (url.searchParams.has('data'))
+                    editor.setValue(url.searchParams.get('data'));
+            } catch (error) {
+                console.error(`Failed to load data from URL`, error);
+            }
+        }
+        window.addEventListener('popstate', loadDataFromUrl);
+        loadDataFromUrl();
+        document.getElementById('save-in-url').onclick = () => {
+            try {
+                if ('URLSearchParams' in window) {
+                    // https://stackoverflow.com/questions/5999118/how-can-i-add-or-update-a-query-string-parameter
+                    const searchParams = new URLSearchParams(window.location.search)
+                    searchParams.set("data", editor.getValue());
+                    const newRelativePathQuery = window.location.pathname + '?' + searchParams.toString();
+                    history.pushState(null, '', newRelativePathQuery);
+                }
+                const url = new URL(window.location.href);
+                const data = url.searchParams.set('data');
+            } catch (error) {
+                console.error(`Failed to save data in URL`, error);
+            }
+        };
+
+        // Update preview:
         const update = () => {
             const warnings = [];
             try {

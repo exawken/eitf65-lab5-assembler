@@ -44,7 +44,6 @@ export class Instruction {
     public constructor(
         private _opcode: number, private _r1: boolean, private _data: number, public comment: string
     ) {
-        // TODO: check if data is 7 bits or 8 bits?
         if (_data > 0b1111_1111) throw new Error(`Instruction data can't be more than 8 bits but was ${_data.toString(2)}`);
         if (_opcode > 0b1111) throw new Error(`Opcode can't be more than 4 bits but was ${_opcode.toString(2)}`);
     }
@@ -59,8 +58,6 @@ export class Instruction {
     }
     toString() {
         const { opcode, r1, data, comment } = this;
-        // Note: even though the data field can't contain more than 7 bits in
-        // the actual hardware the ROM editor reserves 8 bits for its value.
         return (opcode << 9 | (+r1) << 8 | data).toString(16).padStart(4, '0') + ';' + comment;
     }
 }

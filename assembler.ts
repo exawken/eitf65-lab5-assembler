@@ -44,7 +44,8 @@ export class Instruction {
     public constructor(
         private _opcode: number, private _r1: boolean, private _data: number, public comment: string
     ) {
-        if (_data > 0b0111_1111) throw new Error(`Instruction data can't be more than 7 bits but was ${_data.toString(2)}`);
+        // TODO: check if data is 7 bits or 8 bits?
+        if (_data > 0b1111_1111) throw new Error(`Instruction data can't be more than 8 bits but was ${_data.toString(2)}`);
         if (_opcode > 0b1111) throw new Error(`Opcode can't be more than 4 bits but was ${_opcode.toString(2)}`);
     }
     get opcode() {
